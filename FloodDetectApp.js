@@ -341,7 +341,7 @@
 
     var preFloodDateStartSlider = ui.DateSlider({
       start: "2019-01-01",
-      end: "2019-12-31",
+      end: "2023-12-31",
       value: "2019-01-01",
       period: 1,
       style: { stretch: "horizontal" },
@@ -353,7 +353,7 @@
     
     var preFloodDateEndSlider = ui.DateSlider({
       start: "2019-01-01",
-      end: "2019-12-31",
+      end: "2023-12-31",
       value: "2019-01-01",
       period: 1,
       style: { stretch: "horizontal" },
@@ -420,7 +420,7 @@
 
     var floodDateStartSlider = ui.DateSlider({
       start: "2019-01-01",
-      end: "2019-12-31",
+      end: "2023-12-31",
       value: "2019-01-01",
       period: 1,
       style: { stretch: "horizontal" },
@@ -432,7 +432,7 @@
     
     var floodDateEndSlider = ui.DateSlider({
       start: "2019-01-01",
-      end: "2019-12-31",
+      end: "2023-12-31",
       value: "2019-01-01",
       period: 1,
       style: { stretch: "horizontal" },
@@ -533,13 +533,13 @@
       print("Geometry has been created: ", geom)
     }
 
-  function setGeometryROI() {
-    var geom = drawingTools.layers().get(0).toGeometry();
-    if (geom) {
-      geometry = geom;
-      print("Geometry has been set.")
+    function setGeometryROI() {
+      var geom = drawingTools.layers().get(0).toGeometry();
+      if (geom) {
+        geometry = geom;
+        print("Geometry has been set.")
+      }
     }
-  }
 
     // Flood-Affected Area Analysis UI Component
     var mappingFloodLabel= ui.Label("Mapping Flood-Affected Area", {
@@ -603,11 +603,69 @@
 
 // FLOOD DETECTION FUNCTION
 
-    // Declaration of Global Variables
+    // Declare the global variables
+    var preFloodStartDateObj, preFloodEndDateObj, floodStartDateObj, floodEndDateObj;
+
     // Set the date range for Pre-Flood Imagery 
+    function setParams() {
+      // Get the date variable value from the DateSlider
+      var preFloodStartDate = preFloodDateStartSlider.getValue();
+      var preFloodEndDate = preFloodDateEndSlider.getValue();
+      var floodStartDate = floodDateStartSlider.getValue();
+      var floodEndDate = floodDateEndSlider.getValue();
+
+      // Convert Unix Timestamp to Date Object
+      var preFloodStartDateObj = ee.Date(preFloodStartDate);
+      var preFloodEndDateObj = ee.Date(preFloodEndDate);
+      var floodStartDateObj = ee.Date(floodStartDate);
+      var floodEndDateObj = ee.Date(floodEndDate);
+    }
+    setParams();
+
     // Set the date range for Flood
+
+
     // Define the Region of Interest (ROI) for the analysis
 
+
     // Flood Mapping Algorithm
+    function floodAreaMapping() {
+      var geom = drawingTools.layers().get(0).toGeometry();
+      if (geom) {
+        geometry = geom;
+        clipImagery();
+      }
+      var feature = ee.Feature(geom, {})
+      
+      //call set parameter Functio
+      setParams();
+
+      //set date range
+      var before_start = preFloodStartDateObj.format('YYYY-MM-dd');
+      var before_end = preFloodEndDateObj.format('YYYY-MM-dd');
+
+      var after_start = floodStartDateObj.format('YYYY-MM-dd');
+      var after_end = floodEndDateObj.format('YYYY-MM-dd');
+
+      //declare variables
+      var polarization = "VH"
+      var pass_direction = "ASCENDING"
+      var k_ndfi = 1.5
+
+      //declare datasets
+      var dem = ee.Image("USGS/3DEP/10m").select('elevation');
+      var slope = ee.Terrain.slope(dem);
+      var swater = ee.Image('JRC/GSW1_0/GlobalSurfaceWater').select('seasonality');
+      
+      var collection = ee.ImageCollection('COPERNICUS/S1_GRD')
+        .filter(ee.Filter.eq('instrumentMode', 'IW'))
+        .filter(ee.Filter.listContains('transmitterReceiverPolarisation', polarization))
+        .filter(ee.Filter.eq('orbitProperties_pass', pass_direction)) 
+        .filter(ee.Filter.eq('resolution_meters', 10))
+        // .filterBounds(bounds)
+        .select(polarization)
+
+
+    }
 
     // Display settings
