@@ -341,7 +341,7 @@
 
     var preFloodDateStartSlider = ui.DateSlider({
       start: "2019-01-01",
-      end: "2023-12-31",
+      end: "2024-12-31",
       value: "2019-01-01",
       period: 1,
       style: { stretch: "horizontal" },
@@ -353,7 +353,7 @@
     
     var preFloodDateEndSlider = ui.DateSlider({
       start: "2019-01-01",
-      end: "2023-12-31",
+      end: "2024-12-31",
       value: "2019-01-01",
       period: 1,
       style: { stretch: "horizontal" },
@@ -420,7 +420,7 @@
 
     var floodDateStartSlider = ui.DateSlider({
       start: "2019-01-01",
-      end: "2023-12-31",
+      end: "2024-12-31",
       value: "2019-01-01",
       period: 1,
       style: { stretch: "horizontal" },
@@ -432,7 +432,7 @@
     
     var floodDateEndSlider = ui.DateSlider({
       start: "2019-01-01",
-      end: "2023-12-31",
+      end: "2024-12-31",
       value: "2019-01-01",
       period: 1,
       style: { stretch: "horizontal" },
@@ -550,6 +550,8 @@
     var mappingFloodButton = ui.Button({
       label: "Start Mapping Flood-Affected Area",
       onClick: function() {
+        uiMap.clear();
+        floodAreaMapping();
       },
       style: { stretch: "horizontal", color: "black" },
     });
@@ -609,16 +611,16 @@
     // Set the date range for Pre-Flood Imagery 
     function setParams() {
       // Get the date variable value from the DateSlider
-      var preFloodStartDate = preFloodDateStartSlider.getValue();
-      var preFloodEndDate = preFloodDateEndSlider.getValue();
-      var floodStartDate = floodDateStartSlider.getValue();
-      var floodEndDate = floodDateEndSlider.getValue();
+      var preFloodStartDate = preFloodDateStartSlider.getValue()[0];
+      var preFloodEndDate = preFloodDateEndSlider.getValue()[0];
+      var floodStartDate = floodDateStartSlider.getValue()[0];
+      var floodEndDate = floodDateEndSlider.getValue()[0];
 
       // Convert Unix Timestamp to Date Object
-      var preFloodStartDateObj = ee.Date(preFloodStartDate);
-      var preFloodEndDateObj = ee.Date(preFloodEndDate);
-      var floodStartDateObj = ee.Date(floodStartDate);
-      var floodEndDateObj = ee.Date(floodEndDate);
+      preFloodStartDateObj = ee.Date(preFloodStartDate);
+      preFloodEndDateObj = ee.Date(preFloodEndDate);
+      floodStartDateObj = ee.Date(floodStartDate);
+      floodEndDateObj = ee.Date(floodEndDate);
     }
     setParams();
 
@@ -635,6 +637,12 @@
         setParams();
 
         //Convert the date objects to YYYY-MM-DD format
+        var before_start = preFloodStartDateObj.format('YYYY-MM-dd');
+        var before_end = preFloodEndDateObj.format('YYYY-MM-dd');
+
+        var after_start = floodStartDateObj.format('YYYY-MM-dd');
+        var after_end = floodEndDateObj.format('YYYY-MM-dd');
+        
 
       }
     }
@@ -644,7 +652,7 @@
       var geom = drawingTools.layers().get(0).toGeometry();
       if (geom) {
         geometry = geom;
-        clipImagery();
+        // clipImagery(); 
       }
       var feature = ee.Feature(geom, {})
       
@@ -652,11 +660,11 @@
       setParams();
 
       //set date range
-      var before_start = preFloodStartDateObj.format('YYYY-MM-dd');
-      var before_end = preFloodEndDateObj.format('YYYY-MM-dd');
+      var before_start = preFloodStartDateObj.format("YYYY-MM-dd");
+      var before_end = preFloodEndDateObj.format("YYYY-MM-dd");
 
-      var after_start = floodStartDateObj.format('YYYY-MM-dd');
-      var after_end = floodEndDateObj.format('YYYY-MM-dd');
+      var after_start = floodStartDateObj.format("YYYY-MM-dd");
+      var after_end = floodEndDateObj.format("YYYY-MM-dd");
 
       //declare variables
       var polarization = "VH"
@@ -681,10 +689,10 @@
 
       //Generating Reference and Flood Multi-temporal SAR Data
       //Mean Before and Min After
-      var mean_before = before.mean().clip(bounds)
-      var min_after = after.min().clip(bounds)
-      var max_after = after.max().clip(bounds)
-      var mean_after = after.mean().clip(bounds)
+      var mean_before = before.mean().clip(geometry)
+      var min_after = after.min().clip(geometry)
+      var max_after = after.max().clip(geometry)
+      var mean_after = after.mean().clip(geometry)
 
       // Flood Identification using NDFI
       var ndfi = mean_before.abs().subtract(min_after.abs())
@@ -694,14 +702,14 @@
       // NDFI Normalization
       var ndfi_min = ndfi_filtered.reduceRegion({
       reducer: ee.Reducer.min(),
-      geometry: bounds,
+      geometry: geometry,
       scale: 10,
       maxPixels: 1e13
       });
 
       var ndfi_max = ndfi_filtered.reduceRegion({
       reducer: ee.Reducer.max(),
-      geometry: bounds,
+      geometry: geometry,
       scale: 10,
       maxPixels: 1e13
       });
@@ -712,7 +720,7 @@
 
       var histogram = ui.Chart.image.histogram({
         image: ndfi_norm,
-        region: bounds,
+        region: geometry,
         scale: 10,
         maxPixels: 1e13
       });
@@ -721,14 +729,14 @@
       // NDFI Thresholding
       var ndfi_mean = ndfi_norm.reduceRegion({
       reducer: ee.Reducer.mean(),
-      geometry: bounds,
+      geometry: geometry,
       scale: 10,
       maxPixels: 1e13
       });
       
       var ndfi_std = ndfi_norm.reduceRegion({
       reducer: ee.Reducer.stdDev(),
-      geometry: bounds,
+      geometry: geometry,
       scale: 10,
       maxPixels: 1e13
       });
@@ -742,7 +750,7 @@
       
       // NDFI Masking
       var swater_mask = swater.gte(4);  //gte is greater than equal
-      var swater_clip = swater_mask.clip(bounds);
+      var swater_clip = swater_mask.clip(geometry);
       
       var ndfi_flooded_masked = ndfi_filtered.where(swater_mask, 0);
       var connections = ndfi_flooded_masked.connectedPixelCount().gte(25);
@@ -752,7 +760,10 @@
       // Visualizing result
       // Map.addLayer(ndfi_flood, {palette: 'blue'}, 'ndfi_flood',0);
       // Map.setOptions('HYBRID');
-      // Map.centerObject(bounds); 
+      // Map.centerObject(geometry);
+      
+      uiMap.addLayer(ndfi_flood, {palette: 'blue'}, 'ndfi_flood',0);
+      uiMap.centerObject(geometry);
     }
 
     // Display settings
