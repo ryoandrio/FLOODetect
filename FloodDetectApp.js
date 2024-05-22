@@ -696,7 +696,7 @@
 
       // Flood Identification using NDFI
       var ndfi = mean_before.abs().subtract(min_after.abs())
-        .divide(mean_before.abs()).add(min_after.abs());
+                .divide(mean_before.abs().add(min_after.abs()));
       var ndfi_filtered = ndfi.focal_mean({radius: 50, kernelType: 'circle', units: 'meters'});
 
       // NDFI Normalization
