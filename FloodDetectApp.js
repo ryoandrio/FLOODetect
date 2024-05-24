@@ -559,6 +559,7 @@
     var mappingFloodDownloadButton = ui.Button({
       label: "Download Flood-Affected Area",
       onClick: function() {
+        downloadData();
       },
       style: { stretch: "horizontal", color: "black" },
     });
@@ -603,10 +604,24 @@
 
 // ####################################################################### //
 
+  //URL Panel
+  var urlPanel = ui.Panel({
+    style: {
+      position: "bottom-left",
+      padding: "8px 5px",
+      width: "350px",
+      height: "180px",
+    },
+  });
+
+// ####################################################################### //
+
 // FLOOD DETECTION FUNCTION
 
     // Declare the global variables
     var preFloodStartDateObj, preFloodEndDateObj, floodStartDateObj, floodEndDateObj;
+
+    var ndfi_flood, ndfi_flood_smooth, flood_vector;
 
     // Set the date range for Pre-Flood Imagery 
     function setParams() {
@@ -623,12 +638,6 @@
       floodEndDateObj = ee.Date(floodEndDate);
     }
     setParams();
-
-    // Set the date range for Flood
-
-
-    // Define the Region of Interest (ROI) for the analysis
-
 
     // Clip Imagery Function
     function clipImagery() {
@@ -669,11 +678,12 @@
       //declare variables
       var polarization = "VH"
       var pass_direction = "ASCENDING"
-      var k_ndfi = 1.5
+      var k_ndfi = 1
 
       //declare datasets
-      var dem = ee.Image("USGS/3DEP/10m").select('elevation');
-      var slope = ee.Terrain.slope(dem);
+      var dem = ee.ImageCollection('JAXA/ALOS/AW3D30/V3_2').select('DSM');
+      var proj = dem.first().select(0).projection();
+      var slope = ee.Terrain.slope(dem.mosaic().setDefaultProjection(proj))
       var swater = ee.Image('JRC/GSW1_0/GlobalSurfaceWater').select('seasonality');
       
       var collection = ee.ImageCollection('COPERNICUS/S1_GRD')
@@ -755,15 +765,113 @@
       var ndfi_flooded_masked = ndfi_filtered.where(swater_mask, 0);
       var connections = ndfi_flooded_masked.connectedPixelCount().gte(25);
       ndfi_flooded_masked = ndfi_flooded_masked.updateMask(connections.eq(1));
-      var ndfi_flood = ndfi_flooded_masked.updateMask(ndfi_flooded_masked.eq(1));
-      
+      ndfi_flood = ndfi_flooded_masked.updateMask(ndfi_flooded_masked.eq(1));
+      ndfi_flood_smooth = ndfi_flood.focalMean(1, 'circle');
+      ndfi_flood_smooth = ndfi_flood_smooth.toInt();
+
       // Visualizing result
-      // Map.addLayer(ndfi_flood, {palette: 'blue'}, 'ndfi_flood',0);
-      // Map.setOptions('HYBRID');
-      // Map.centerObject(geometry);
-      
-      uiMap.addLayer(ndfi_flood, {palette: 'blue'}, 'ndfi_flood',0);
+      uiMap.setOptions('HYBRID');
+      uiMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'ndfi_flood', 1);
       uiMap.centerObject(geometry);
+
+      // Convert the result to vector format
+      flood_vector = ndfi_flood_smooth.reduceToVectors({
+        geometry: geometry,
+        scale: 10,
+        maxPixels: 1e13,
+        geometryType: 'polygon',
+        eightConnected: false,
+        labelProperty: 'flood',
+        reducer: ee.Reducer.countEvery(),
+        bestEffort: true
+      });
+      var flood_vector_drawn = ee.Image(0).updateMask(0).paint(flood_vector, '000000', 1);
+      uiMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flood Area polygon');
     }
 
-    // Display settings
+// ####################################################################### //
+
+// DOWNLOAD FUNCTION
+
+    function downloadData() {
+      //set geometry
+      var geom = drawingTools.layers().get(0).toGeometry();
+      if (geom) {
+        geometry = geom;
+        clipImagery();
+      }
+      var feature = ee.Feature(geom, {})
+
+      //call set parameter Function
+      setParams();
+
+      //set date of flood
+      var flood_start = floodStartDateObj.format("YYYY-MM-dd").getInfo();
+      var flood_end = floodEndDateObj.format("YYYY-MM-dd").getInfo();
+
+      //export flood-affected area
+      // Export.image.toDrive({
+      //   image: ndfi_flood_smooth,
+      //   description: 'FloodAffectedArea_' + flood_start + '_' + flood_end,
+      //   region: geometry,
+      //   scale: 10,
+      //   fileFormat: 'GeoTIFF',
+      // });
+
+      // Export.table.toDrive({
+      //   collection: flood_vector,
+      //   description:'FloodAffectedArea_Vector_' + flood_start + '_' + flood_end,
+      //   fileFormat: 'GeoJSON'
+      // });
+
+      //get download link
+      var downloadUrlFlood = ndfi_flood_smooth.getDownloadURL({
+        name: 'FloodAffectedArea_' + flood_start + '_' + flood_end,
+        scale: 10,
+        region: geometry,
+        format: 'ZIPPED_GEO_TIFF'
+      });
+
+      var downloadUrlFloodVector = flood_vector.getDownloadURL({
+        filename: 'VectorFloodAffectedArea_' + flood_start + '_' + flood_end,
+        format: 'GeoJSON',
+      });
+
+      //create label for download link
+      var urlLabel = ui.Label('Click to Download Data', {
+        fontWeight: 'bold',
+      });
+      var downloadLink = ui.Label({
+        value:
+          "• Download Flood-Affected Area Data [GeoTIFF]" +
+          " " +
+          "(" +
+          flood_start +
+          ")" +
+          "-" +
+          "(" +
+          flood_end +
+          ")",
+        targetUrl: downloadUrlFlood,
+      });
+      var downloadLinkVector = ui.Label({
+        value:
+          "• Download Flood-Affected Area Data [GeoJSON]" +
+          " " +
+          "(" +
+          flood_start +
+          ")" +
+          "-" +
+          "(" +
+          flood_end +
+          ")",
+        targetUrl: downloadUrlFloodVector,
+      });
+
+      //add download link to the panel
+      urlPanel.clear();
+      urlPanel.add(urlLabel);
+      urlPanel.add(downloadLink);
+      urlPanel.add(downloadLinkVector);
+      uiMap.add(urlPanel);
+    }

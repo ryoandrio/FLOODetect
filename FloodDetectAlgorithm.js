@@ -6,7 +6,7 @@ var params = [
   '2024-01-31',   //before_end
   '2024-02-01',   //after_start
   '2024-03-31',   //after_end
-  0.5,            //k_ndfi
+  1,            //k_ndfi
   ];
 
 // SAR Input Data
@@ -48,7 +48,7 @@ var max_after = after.max().clip(bounds);
 var mean_after = after.mean().clip(bounds);
 
 Map.addLayer(mean_before, {min: -29.264204107025904, max: -8.938093778644141, palette: []}, "mean_before",0);
-Map.addLayer(min_after, {min: -29.29334290990966, max: -11.928313976797138, palette: []}, "min_after",1);
+Map.addLayer(min_after, {min: -29.29334290990966, max: -11.928313976797138, palette: []}, "min_after",0);
 
 
 // Flood Identification using NDFI
@@ -101,6 +101,7 @@ maxPixels: 1e13
 });
 
 var ndfi_th = ee.Number(ndfi_mean.get('VH')).subtract(ee.Number(k_ndfi).multiply(ee.Number(ndfi_std.get('VH'))));
+
 print('ndfi_th = ', ndfi_th);
 
 // Apply Thresholding Value on NDFI (lt is lower than)
@@ -110,15 +111,53 @@ var ndfi_filtered = ndfi_norm.lt(ndfi_th);
 // NDFI Masking
 var swater_mask = swater.gte(4);  //gte is greater than equal
 var swater_clip = swater_mask.clip(bounds);
-var slope_mask = slope.lt(1)
+var slope_mask = slope.lt(2)
 
 var ndfi_flooded_masked = ndfi_filtered.where(swater_mask, 0).updateMask(slope_mask.eq(1));
 // var ndfi_flooded_masked = ndfi_filtered.where(swater_mask, 0);
 var connections = ndfi_flooded_masked.connectedPixelCount().gte(25);
 ndfi_flooded_masked = ndfi_flooded_masked.updateMask(connections.eq(1));
 var ndfi_flood = ndfi_flooded_masked.updateMask(ndfi_flooded_masked.eq(1));
+var ndfi_flood_smooth = ndfi_flood.focalMean(1, 'circle')
+ndfi_flood_smooth = ndfi_flood_smooth.toInt()
 
 // Visualizing result
-Map.addLayer(ndfi_flood, {palette: 'blue'}, 'ndfi_flood',0);
+// Map.addLayer(ndfi_flood, {palette: 'blue'}, 'ndfi_flood',1);
+Map.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'ndfi_flood_smooth');
 Map.setOptions('HYBRID');
 Map.centerObject(bounds);
+
+var flood_vector = ndfi_flood_smooth.reduceToVectors({
+  geometry: bounds,
+  crs: ndfi_flood_smooth.projection(),
+  scale: 10,
+  geometryType: 'polygon',
+  eightConnected: false,
+  labelProperty: 'flood',
+  reducer: ee.Reducer.countEvery(),
+  bestEffort: true
+}) 
+
+var flood_vector_drawn = ee.Image(0).updateMask(0).paint(flood_vector, '000000', 1);
+Map.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flood Area polygon');
+
+
+// Export data
+Export.image.toDrive({
+        image: ndfi_flood,
+        description: 'FloodAffectedArea_' + after_start + '_' + after_end,
+        region: bounds,
+        scale: 10,
+        fileFormat: 'GeoTIFF',
+});
+
+Export.table.toDrive({
+  collection: flood_vector,
+  description:'FloodAffectedArea_Vector_' + after_start + '_' + after_end,
+  fileFormat: 'GeoJSON'
+});
+
+
+
+
+
