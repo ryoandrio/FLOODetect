@@ -342,7 +342,7 @@
     var preFloodDateStartSlider = ui.DateSlider({
       start: "2019-01-01",
       end: "2024-12-31",
-      value: "2019-01-01",
+      value: "2024-01-01",
       period: 1,
       style: { stretch: "horizontal" },
     });
@@ -354,7 +354,7 @@
     var preFloodDateEndSlider = ui.DateSlider({
       start: "2019-01-01",
       end: "2024-12-31",
-      value: "2019-01-01",
+      value: "2024-01-01",
       period: 1,
       style: { stretch: "horizontal" },
     });
@@ -421,7 +421,7 @@
     var floodDateStartSlider = ui.DateSlider({
       start: "2019-01-01",
       end: "2024-12-31",
-      value: "2019-01-01",
+      value: "2024-01-01",
       period: 1,
       style: { stretch: "horizontal" },
     });
@@ -433,7 +433,7 @@
     var floodDateEndSlider = ui.DateSlider({
       start: "2019-01-01",
       end: "2024-12-31",
-      value: "2019-01-01",
+      value: "2024-01-01",
       period: 1,
       style: { stretch: "horizontal" },
     });
@@ -610,7 +610,7 @@
       position: "bottom-left",
       padding: "8px 5px",
       width: "350px",
-      height: "180px",
+      // height: "180px",
     },
   });
 
@@ -771,7 +771,7 @@
 
       // Visualizing result
       uiMap.setOptions('HYBRID');
-      uiMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'ndfi_flood', 1);
+      uiMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'Flooded Area', 1);
       uiMap.centerObject(geometry);
 
       // Convert the result to vector format
@@ -786,9 +786,72 @@
         bestEffort: true
       });
       var flood_vector_drawn = ee.Image(0).updateMask(0).paint(flood_vector, '000000', 1);
-      uiMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flood Area polygon');
+      uiMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flooded Area (polygon)');
+
+      //call legend function
+      legendFlood();
     }
 
+// ####################################################################### //
+
+// LEGEND FUNCTION
+
+    // Create legend function
+    function legendFlood() {
+      //create legend panel
+      var legendPanel = ui.Panel({
+        style: {
+          position: "bottom-left",
+          padding: "8px 10px",
+        },
+      });
+      //create legend title
+      var legendTitle = ui.Label({
+        value: "Legend",
+        style: {
+          fontWeight: "bold",
+          fontSize: "14px",
+          margin: "0 0 4px 0",
+          padding: "0",
+        },
+      });
+      legendPanel.add(legendTitle);
+      //create legend content
+      var legendContent = function (color, range) {
+        var colorBox = ui.Label({
+          style: {
+            backgroundColor: "#" + color,
+            padding: "8px",
+            margin: "0 0 6px 0",
+          },
+        });
+        var description = ui.Label({
+          value: range,
+          style: {
+            margin: "0 0 4px 6px",
+          },
+        });
+        return ui.Panel({
+          widgets: [
+            ui.Panel({
+              widgets: [colorBox],
+              layout: ui.Panel.Layout.Flow("horizontal"),
+            }),
+            ui.Panel({
+              widgets: [description],
+              layout: ui.Panel.Layout.Flow("horizontal"),
+            }),
+          ],
+          layout: ui.Panel.Layout.Flow("horizontal"),
+        });
+      };
+      var legendColor = ["0000FF"];
+      var legendInfo = ["Flooded Area"];
+      for (var i = 0; i < legendColor.length; i++) {
+        legendPanel.add(legendContent(legendColor[i], legendInfo[i]));
+      }
+      uiMap.add(legendPanel);
+    }
 // ####################################################################### //
 
 // DOWNLOAD FUNCTION
@@ -825,35 +888,40 @@
       // });
 
       //get download link
-      var downloadUrlFlood = ndfi_flood_smooth.getDownloadURL({
-        name: 'FloodAffectedArea_' + flood_start + '_' + flood_end,
-        scale: 10,
-        region: geometry,
-        format: 'ZIPPED_GEO_TIFF'
-      });
+      // var downloadUrlFlood = ndfi_flood_smooth.getDownloadURL({
+      //   name: 'FloodAffectedArea_' + flood_start + '_' + flood_end,
+      //   scale: 10,
+      //   region: geometry,
+      //   format: 'ZIPPED_GEO_TIFF',
+      // });
 
       var downloadUrlFloodVector = flood_vector.getDownloadURL({
         filename: 'VectorFloodAffectedArea_' + flood_start + '_' + flood_end,
         format: 'GeoJSON',
       });
 
+      var downloadUrlFloodVectorSHP = flood_vector.getDownloadURL({
+        filename: 'VectorFloodAffectedArea_' + flood_start + '_' + flood_end,
+        format: 'SHP',
+      });
+
       //create label for download link
       var urlLabel = ui.Label('Click to Download Data', {
         fontWeight: 'bold',
       });
-      var downloadLink = ui.Label({
-        value:
-          "• Download Flood-Affected Area Data [GeoTIFF]" +
-          " " +
-          "(" +
-          flood_start +
-          ")" +
-          "-" +
-          "(" +
-          flood_end +
-          ")",
-        targetUrl: downloadUrlFlood,
-      });
+      // var downloadLink = ui.Label({
+      //   value:
+      //     "• Download Flood-Affected Area Data [GeoTIFF]" +
+      //     " " +
+      //     "(" +
+      //     flood_start +
+      //     ")" +
+      //     "-" +
+      //     "(" +
+      //     flood_end +
+      //     ")",
+      //   targetUrl: downloadUrlFlood,
+      // });
       var downloadLinkVector = ui.Label({
         value:
           "• Download Flood-Affected Area Data [GeoJSON]" +
@@ -867,11 +935,25 @@
           ")",
         targetUrl: downloadUrlFloodVector,
       });
+      var downloadLinkVectorSHP = ui.Label({
+        value:
+          "• Download Flood-Affected Area Data [Shapefile]" +
+          " " +
+          "(" +
+          flood_start +
+          ")" +
+          "-" +
+          "(" +
+          flood_end +
+          ")",
+        targetUrl: downloadUrlFloodVectorSHP,
+      });
 
       //add download link to the panel
       urlPanel.clear();
       urlPanel.add(urlLabel);
-      urlPanel.add(downloadLink);
+      // urlPanel.add(downloadLink);
       urlPanel.add(downloadLinkVector);
+      urlPanel.add(downloadLinkVectorSHP);
       uiMap.add(urlPanel);
     }
