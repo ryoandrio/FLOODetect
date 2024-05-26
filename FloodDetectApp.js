@@ -247,6 +247,22 @@
 
 // ANALYSIS PAGE USER INTERFACE COMPONENT
 
+    // Split Panel UI Component
+    var leftMap = ui.Map();
+    leftMap.setControlVisibility(true);
+
+    var rightMap = ui.Map();
+    rightMap.setControlVisibility(true);
+
+    var splitPanel = ui.SplitPanel({
+      firstPanel: leftMap,
+      secondPanel: rightMap,
+      wipe: true,
+      style: {stretch: 'both'},
+    });
+    var linker = ui.Map.Linker([leftMap, rightMap]);
+
+
     var analysisTitleLabel = ui.Label("FLOODetect", {
         fontWeight: "bold",
         fontFamily: "Arial, sans-serif",
@@ -551,6 +567,11 @@
       label: "Start Mapping Flood-Affected Area",
       onClick: function() {
         uiMap.clear();
+        leftMap.clear();
+        rightMap.clear();
+        ui.root.clear();
+        ui.root.insert(0, splitPanel);
+        ui.root.insert(1, analysisPanel);
         floodAreaMapping();
       },
       style: { stretch: "horizontal", color: "black" },
@@ -621,7 +642,7 @@
     // Declare the global variables
     var preFloodStartDateObj, preFloodEndDateObj, floodStartDateObj, floodEndDateObj;
 
-    var ndfi_flood, ndfi_flood_smooth, flood_vector;
+    var ndfi_flood, ndfi_flood_smooth, flood_vector, mean_before, min_after;
 
     // Set the date range for Pre-Flood Imagery 
     function setParams() {
@@ -663,7 +684,6 @@
         geometry = geom;
         // clipImagery(); 
       }
-      var feature = ee.Feature(geom, {})
       
       //call set parameter Functio
       setParams();
@@ -698,11 +718,15 @@
       var after = collection.filterDate(after_start, after_end);
 
       //Generating Reference and Flood Multi-temporal SAR Data
-      //Mean Before and Min After
-      var mean_before = before.mean().clip(geometry)
-      var min_after = after.min().clip(geometry)
+      //Calculate Mean Before and Min After
+      mean_before = before.mean().clip(geometry)
+      min_after = after.min().clip(geometry)
       var max_after = after.max().clip(geometry)
       var mean_after = after.mean().clip(geometry)
+
+      leftMap.addLayer(mean_before, {min: -29.264204107025904, max: -8.938093778644141, palette: []}, "Pre-Flood (Mean) Sentinel-1 Imagery",0);
+      rightMap.addLayer(min_after, {min: -29.29334290990966, max: -11.928313976797138, palette: []}, "Flood (Min) Sentinel-1 Imagery",0);
+
 
       // Flood Identification using NDFI
       var ndfi = mean_before.abs().subtract(min_after.abs())
@@ -761,8 +785,9 @@
       // NDFI Masking
       var swater_mask = swater.gte(4);  //gte is greater than equal
       var swater_clip = swater_mask.clip(geometry);
-      
-      var ndfi_flooded_masked = ndfi_filtered.where(swater_mask, 0);
+      var slope_mask = slope.lt(2)
+
+      var ndfi_flooded_masked = ndfi_filtered.where(swater_mask, 0).updateMask(slope_mask.eq(1));
       var connections = ndfi_flooded_masked.connectedPixelCount().gte(25);
       ndfi_flooded_masked = ndfi_flooded_masked.updateMask(connections.eq(1));
       ndfi_flood = ndfi_flooded_masked.updateMask(ndfi_flooded_masked.eq(1));
@@ -770,9 +795,12 @@
       ndfi_flood_smooth = ndfi_flood_smooth.toInt();
 
       // Visualizing result
-      uiMap.setOptions('HYBRID');
-      uiMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'Flooded Area', 1);
-      uiMap.centerObject(geometry);
+      leftMap.setOptions('HYBRID');
+      rightMap.setOptions('HYBRID');
+      leftMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'Flooded Area', 1);
+      rightMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'Flooded Area', 1);
+      leftMap.centerObject(geometry);
+      rightMap.centerObject(geometry);
 
       // Convert the result to vector format
       flood_vector = ndfi_flood_smooth.reduceToVectors({
@@ -786,7 +814,8 @@
         bestEffort: true
       });
       var flood_vector_drawn = ee.Image(0).updateMask(0).paint(flood_vector, '000000', 1);
-      uiMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flooded Area (polygon)');
+      leftMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flooded Area (polygon)',0);
+      rightMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flooded Area (polygon)',0);
 
       //call legend function
       legendFlood();
@@ -850,7 +879,7 @@
       for (var i = 0; i < legendColor.length; i++) {
         legendPanel.add(legendContent(legendColor[i], legendInfo[i]));
       }
-      uiMap.add(legendPanel);
+      leftMap.add(legendPanel);
     }
 // ####################################################################### //
 
@@ -955,5 +984,7 @@
       // urlPanel.add(downloadLink);
       urlPanel.add(downloadLinkVector);
       urlPanel.add(downloadLinkVectorSHP);
-      uiMap.add(urlPanel);
+      leftMap.add(urlPanel);
     }
+
+// ####################################################################### //
