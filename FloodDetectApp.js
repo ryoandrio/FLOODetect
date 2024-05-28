@@ -29,13 +29,13 @@
         });
 
     var descriptionLabel = ui.Label(
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eleifend nisi non elit ultricies finibus. Maecenas egestas ullamcorper libero eu tincidunt. Nullam eget orci finibus, vulputate tellus sed, euismod velit. Nam sed enim vitae elit placerat cursus sit amet finibus massa. Curabitur tincidunt mauris nec fermentum faucibus. Nulla facilisi. Nam non mollis sem, ac bibendum dolor. Donec interdum consequat turpis dignissim pulvinar.",
+      "FLOODetect is a web-based application designed to map the flood-affected areas using Sentinel-1 imagery with Google Earth Engine cloud computing technology. The application have flexible options for drawing study area and selecting the date of the imagery acquisition, allowing users to adjust both components based on their analysis needs. The Flood-affected area will be displayed, along with a link to download the data.", 
       {textAlign: "justify"}
     );
 
     // Information UI Component
     var instructionButton = ui.Button({
-      label: "Instruction Manual of FLOODetect Apps",
+      label: "User Guide of FLOODetect Apps",
       style: { stretch: "horizontal", color: "black" },
     });
 
@@ -46,7 +46,7 @@
 
     instructionButton.onClick(function() {
       if (instructionPanel.style().get("shown")) {
-        instructionButton.setLabel("Instruction Manual of FLOODetect Apps");
+        instructionButton.setLabel("User Guide of FLOODetect Apps");
         instructionPanel.style().set("shown", false);
       } else {
         instructionButton.setLabel("Close Information");
@@ -55,46 +55,50 @@
     })
 
     var instructionLabel = ui.Panel([
-      ui.Label("Instruction Manual of FLOODetect Apps", {
+      ui.Label("User Guide of FLOODetect Apps", {
         fontSize: "12px",
         fontWeight: "bold",
         margin: "15px 0 0 15px",
       }),
       ui.Label(
-        "[Klik Disini] Video Tutorial Penggunaan WebGIS AeroSkySense",
+        "[Click Here] Video Tutorial of FLOODetect Apps",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" },
-        "https://music.youtube.com/watch?v=TN5Ye9pQhlM&list=RDAOASm6zw3fwwNHHUAmqi82kg"
+        "https://www.youtube.com/"
       ),
       ui.Label(
-        "1. Untuk mengetahui kondisi kualitas udara menggunakan WebGIS ini terdapat beberapa parameter yang harus diisi, seperti Rentang Waktu, Jenis Gas Polutan dan Wilayah Kajian.",
+        "1.	To map the flood-affected area with this app, several parameters are needed, including the pre-flood date range, the flood event date range, and the study area. Click the “Start Data Processing” to navigate to Data Processing page.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "2. Pada parameter Rentang Waktu, dapat diisi dengan memilih waktu awal perekaman dan akhir perekaman melalui DateSlider pada bagian 'Pilih Rentang Waktu Perekaman'.",
+        "2.	The Pre-Flood Date Range is the period when the study area is in normal condition and flooding has not occurred. There are two date sliders that need to be adjusted in this parameter to determine the start and the end date of the pre-flood period (which can be several days before the flood occurs). It is recommended that the pre-flood time range covers more than 30 days.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "3. Pada parameter Jenis Gas Polutan, dapat diisi dengan memilih jenis gas polutan yang terdiri dari Karbon Monoksida, Nitrogen Dioksida, Sulfur Dioksida dan Ozon pada bagian 'Pilih Jenis Gas Polutan'.",
+        "3.	The Flood Date Range is the period when the study area is experiencing flooding or inundation. There are two date sliders that need to be adjusted in this parameter to determine the start date and the end date of the flood period.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "4. Pada parameter Wilayah Kajian, dapat diisi dengan menambahkan geometri yang disesuaikan dengan halaman yang dipilih (Region of Interest, Aset, Batas Administrasi) pada bagian 'Kelola Area Wilayah Kajian'.",
+        "4.	The Study Area parameter is added through drawing tools.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "5. Lakukan Analisis Konsentrasi Gas Polutan dengan Klik Tombol 'Submit dan Analisis Konsentrasi Polutan' pada bagian 'Analisis dan Visualisasi Konsentrasi Gas Polutan'. Jika ingin mengunduh datanya dapat dilakukan dengan Klik tombol 'Unduh Data Konsentrasi Polutan'",
+        "5.	Perform the flood area mapping by clicking the “Start Mapping Flood-Affected Area” button.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "6. Lakukan Analisis Kualitas Udara berbasis ISPU dengan Klik Tombol 'Submit dan Analisis Kualitas Udara' pada bagian 'Analisis dan Visualisasi Kualitas Udara'. Jika ingin mengunduh datanya dapat dilakukan dengan Klik tombol 'Unduh Data Kualitas Udara'",
+        "6.	The application display will change to a split panel. The flood area mapping results will be displayed on both panels in blue color",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "6. Lakukan Analisis Kualitas Udara berbasis ISPU dengan Klik Tombol 'Submit dan Analisis Kualitas Udara' pada bagian 'Analisis dan Visualisasi Kualitas Udara'. Jika ingin mengunduh datanya dapat dilakukan dengan Klik tombol 'Unduh Data Kualitas Udara'",
+        "7.	The split panel can be used to compare the Sentinel-1 Pre-flood imagery (left panel) and Post-flood imagery (right panel).",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "7. Lakukan pengamatan dan analisis terhadap kondisi Konsentrasi Gas Polutan dan Kualitas Udara menggunakan fitur-fitur yang ada seperti ekstraksi nilai-nilai rata konsentrasi gas polutan melalui grafik yang akan muncul ketika melakukan analisis",
+        "8.	The total flood area will be displayed in the bottom right corner after a few moments.",
+        { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
+      ),
+      ui.Label(
+        "9.	To download the mapping data, click the “Download Flood-Affected Area” button. A panel containing the data download link will appear in the bottom left corner. The data formats currently available for download are GeoJSON and Shapefile.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
     ]);
@@ -280,7 +284,7 @@
 
      // Information UI Component (Analysis Page)
     var analysisInstructionButton = ui.Button({
-      label: "Instruction Manual of FLOODetect Apps",
+      label: "User Guide of FLOODetect Apps",
       style: { stretch: "horizontal", color: "black" },
     });
 
@@ -291,7 +295,7 @@
 
     analysisInstructionButton.onClick(function() {
       if (analysisInstructionPanel.style().get("shown")) {
-        analysisInstructionButton.setLabel("Instruction Manual of FLOODetect Apps");
+        analysisInstructionButton.setLabel("User Guide of FLOODetect Apps");
         analysisInstructionPanel.style().set("shown", false);
       } else {
         analysisInstructionButton.setLabel("Close Information");
@@ -300,46 +304,50 @@
     })
 
     var analysisInstructionLabel = ui.Panel([
-      ui.Label("Instruction Manual of FLOODetect Apps", {
+      ui.Label("User Guide of FLOODetect Apps", {
         fontSize: "12px",
         fontWeight: "bold",
         margin: "15px 0 0 15px",
       }),
       ui.Label(
-        "[Klik Disini] Video Tutorial Penggunaan WebGIS AeroSkySense",
+        "[Click Here] Video Tutorial of FLOODetect Apps",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" },
-        "https://music.youtube.com/watch?v=TN5Ye9pQhlM&list=RDAOASm6zw3fwwNHHUAmqi82kg"
+        "https://www.youtube.com/"
       ),
       ui.Label(
-        "1. Untuk mengetahui kondisi kualitas udara menggunakan WebGIS ini terdapat beberapa parameter yang harus diisi, seperti Rentang Waktu, Jenis Gas Polutan dan Wilayah Kajian.",
+        "1.	To map the flood-affected area with this app, several parameters are needed, including the pre-flood date range, the flood event date range, and the study area.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "2. Pada parameter Rentang Waktu, dapat diisi dengan memilih waktu awal perekaman dan akhir perekaman melalui DateSlider pada bagian 'Pilih Rentang Waktu Perekaman'.",
+        "2.	The Pre-Flood Date Range is the period when the study area is in normal condition and flooding has not occurred. There are two date sliders that need to be adjusted in this parameter to determine the start and the end date of the pre-flood period (which can be several days before the flood occurs). It is recommended that the pre-flood time range covers more than 30 days.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "3. Pada parameter Jenis Gas Polutan, dapat diisi dengan memilih jenis gas polutan yang terdiri dari Karbon Monoksida, Nitrogen Dioksida, Sulfur Dioksida dan Ozon pada bagian 'Pilih Jenis Gas Polutan'.",
+        "3.	The Flood Date Range is the period when the study area is experiencing flooding or inundation. There are two date sliders that need to be adjusted in this parameter to determine the start date and the end date of the flood period.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "4. Pada parameter Wilayah Kajian, dapat diisi dengan menambahkan geometri yang disesuaikan dengan halaman yang dipilih (Region of Interest, Aset, Batas Administrasi) pada bagian 'Kelola Area Wilayah Kajian'.",
+        "4.	The Study Area parameter is added through drawing tools.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "5. Lakukan Analisis Konsentrasi Gas Polutan dengan Klik Tombol 'Submit dan Analisis Konsentrasi Polutan' pada bagian 'Analisis dan Visualisasi Konsentrasi Gas Polutan'. Jika ingin mengunduh datanya dapat dilakukan dengan Klik tombol 'Unduh Data Konsentrasi Polutan'",
+        "5.	Perform the flood area mapping by clicking the “Start Mapping Flood-Affected Area” button.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "6. Lakukan Analisis Kualitas Udara berbasis ISPU dengan Klik Tombol 'Submit dan Analisis Kualitas Udara' pada bagian 'Analisis dan Visualisasi Kualitas Udara'. Jika ingin mengunduh datanya dapat dilakukan dengan Klik tombol 'Unduh Data Kualitas Udara'",
+        "6.	The application display will change to a split panel. The flood area mapping results will be displayed on both panels in blue color",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "6. Lakukan Analisis Kualitas Udara berbasis ISPU dengan Klik Tombol 'Submit dan Analisis Kualitas Udara' pada bagian 'Analisis dan Visualisasi Kualitas Udara'. Jika ingin mengunduh datanya dapat dilakukan dengan Klik tombol 'Unduh Data Kualitas Udara'",
+        "7.	The split panel can be used to compare the Sentinel-1 Pre-flood imagery (left panel) and Post-flood imagery (right panel).",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "7. Lakukan pengamatan dan analisis terhadap kondisi Konsentrasi Gas Polutan dan Kualitas Udara menggunakan fitur-fitur yang ada seperti ekstraksi nilai-nilai rata konsentrasi gas polutan melalui grafik yang akan muncul ketika melakukan analisis",
+        "8.	The total flood area will be displayed in the bottom right corner after a few moments.",
+        { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
+      ),
+      ui.Label(
+        "9.	To download the mapping data, click the “Download Flood-Affected Area” button. A panel containing the data download link will appear in the bottom left corner. The data formats currently available for download are GeoJSON and Shapefile.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
     ]);
@@ -842,16 +850,16 @@
 
     //calculate flood area
     function calcFloodArea() {
-      var areaPanel = ui.Panel({
+      var areaFloodPanel = ui.Panel({
         style: {
           position: "bottom-right",
           padding: "8px 5px",
         },
       }).add(ui.Label('Total Area of Flood:'));
-      rightMap.add(areaPanel);
+      rightMap.add(areaFloodPanel);
 
       //show the loading label
-      areaPanel.widgets().set(0, ui.Label({
+      areaFloodPanel.widgets().set(0, ui.Label({
         value: 'Loading ...',
         style: {color: 'gray'}
       }))
@@ -866,10 +874,11 @@
       flood_area_value = ee.Number(flood_area.get('VH')).divide(1e6);
       print('Flood Area: ', flood_area_value);
 
+      
       //request the flood area value from the server
       flood_area_value.evaluate(function(result) {
         //set the value to label when the value is ready
-        areaPanel.widgets().set(0, ui.Label({
+        areaFloodPanel.widgets().set(0, ui.Label({
           value: 'Total Area of Flood: ' + result.toFixed(3) + ' km2',
         }));
       });
@@ -933,20 +942,6 @@
       for (var i = 0; i < legendColor.length; i++) {
         legendPanel.add(legendContent(legendColor[i], legendInfo[i]));
       }
-
-      // var flood_area = ndfi_flood_smooth.multiply(ee.Image.pixelArea()).reduceRegion({
-      //   reducer: ee.Reducer.sum(),
-      //   geometry: geometry,
-      //   scale: 10,
-      //   maxPixels: 1e13
-      // });
-      // flood_area_value = ee.Number(flood_area.get('VH')).divide(1e6);
-      // print('Flood Area: ', flood_area_value);
-
-      // var areaLabel = ui.Label('Total Area of Flood: ' + flood_area_value.format('%.3f').getInfo() + ' km2', {
-      //   fontWeight: 'bold',
-      // });
-      // legendPanel.add(areaLabel);
 
       leftMap.add(legendPanel);
     }
