@@ -585,6 +585,14 @@
       style: { stretch: "horizontal", color: "black" },
     });
 
+    var calcFloodAreaButton = ui.Button({
+      label: "Calculate Flood-Affected Area",
+      onClick: function() {
+        downloadData();
+      },
+      style: { stretch: "horizontal", color: "black" },
+    });
+
     var analysisBackButton = ui.Button({
       label: "Back to Main Page",
       onClick: function() {
@@ -643,6 +651,8 @@
     var preFloodStartDateObj, preFloodEndDateObj, floodStartDateObj, floodEndDateObj;
 
     var ndfi_flood, ndfi_flood_smooth, flood_vector, mean_before, min_after;
+
+    var flood_area_value;
 
     // Set the date range for Pre-Flood Imagery 
     function setParams() {
@@ -819,6 +829,50 @@
 
       //call legend function
       legendFlood();
+      //call calculate flood area function
+      calcFloodArea();
+    }
+
+
+// ####################################################################### //
+
+// CALCULATE AREA FUNCTION
+
+    
+
+    //calculate flood area
+    function calcFloodArea() {
+      var areaPanel = ui.Panel({
+        style: {
+          position: "bottom-right",
+          padding: "8px 5px",
+        },
+      }).add(ui.Label('Total Area of Flood:'));
+      rightMap.add(areaPanel);
+
+      //show the loading label
+      areaPanel.widgets().set(0, ui.Label({
+        value: 'Loading ...',
+        style: {color: 'gray'}
+      }))
+
+      //calculate flood area
+      var flood_area = ndfi_flood_smooth.multiply(ee.Image.pixelArea()).reduceRegion({
+        reducer: ee.Reducer.sum(),
+        geometry: geometry,
+        scale: 10,
+        maxPixels: 1e13
+      });
+      flood_area_value = ee.Number(flood_area.get('VH')).divide(1e6);
+      print('Flood Area: ', flood_area_value);
+
+      //request the flood area value from the server
+      flood_area_value.evaluate(function(result) {
+        //set the value to label when the value is ready
+        areaPanel.widgets().set(0, ui.Label({
+          value: 'Total Area of Flood: ' + result.toFixed(3) + ' km2',
+        }));
+      });
     }
 
 // ####################################################################### //
@@ -879,6 +933,21 @@
       for (var i = 0; i < legendColor.length; i++) {
         legendPanel.add(legendContent(legendColor[i], legendInfo[i]));
       }
+
+      // var flood_area = ndfi_flood_smooth.multiply(ee.Image.pixelArea()).reduceRegion({
+      //   reducer: ee.Reducer.sum(),
+      //   geometry: geometry,
+      //   scale: 10,
+      //   maxPixels: 1e13
+      // });
+      // flood_area_value = ee.Number(flood_area.get('VH')).divide(1e6);
+      // print('Flood Area: ', flood_area_value);
+
+      // var areaLabel = ui.Label('Total Area of Flood: ' + flood_area_value.format('%.3f').getInfo() + ' km2', {
+      //   fontWeight: 'bold',
+      // });
+      // legendPanel.add(areaLabel);
+
       leftMap.add(legendPanel);
     }
 // ####################################################################### //
