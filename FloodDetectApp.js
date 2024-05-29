@@ -2,6 +2,7 @@
 
 // MAIN PAGE USER INTERFACE COMPONENT
 
+    // Root UI Configuration
     ui.root.clear(0, Map);
     var uiMap = ui.Map();
     ui.root.widgets().add(uiMap);
@@ -180,7 +181,6 @@
       style: { stretch: "horizontal", color: "black" },
     });
 
-
     // Credit UI Component
     var creditPanel = ui.Panel([
       ui.Label("Credits:", {
@@ -278,7 +278,7 @@
           textAlign: "justify"
     });
 
-     // Information UI Component (Analysis Page)
+    // Information UI Component (Analysis Page)
     var analysisInstructionButton = ui.Button({
       label: "User Guide of FLOODetect Apps",
       style: { stretch: "horizontal", color: "black" },
@@ -531,7 +531,6 @@
     });
 
     // ROI function
-    // var drawingTools = Map.drawingTools();
     var drawingTools = uiMap.drawingTools();
     var geometry = null;
     var geometryImage = null;
@@ -842,8 +841,6 @@
 
 // CALCULATE AREA FUNCTION
 
-    
-
     //calculate flood area
     function calcFloodArea() {
       var areaFloodPanel = ui.Panel({
@@ -870,7 +867,6 @@
       flood_area_value = ee.Number(flood_area.get('VH')).divide(1e6);
       print('Flood Area: ', flood_area_value);
 
-      
       //request the flood area value from the server
       flood_area_value.evaluate(function(result) {
         //set the value to label when the value is ready
@@ -961,29 +957,6 @@
       var flood_start = floodStartDateObj.format("YYYY-MM-dd").getInfo();
       var flood_end = floodEndDateObj.format("YYYY-MM-dd").getInfo();
 
-      //export flood-affected area
-      // Export.image.toDrive({
-      //   image: ndfi_flood_smooth,
-      //   description: 'FloodAffectedArea_' + flood_start + '_' + flood_end,
-      //   region: geometry,
-      //   scale: 10,
-      //   fileFormat: 'GeoTIFF',
-      // });
-
-      // Export.table.toDrive({
-      //   collection: flood_vector,
-      //   description:'FloodAffectedArea_Vector_' + flood_start + '_' + flood_end,
-      //   fileFormat: 'GeoJSON'
-      // });
-
-      //get download link
-      // var downloadUrlFlood = ndfi_flood_smooth.getDownloadURL({
-      //   name: 'FloodAffectedArea_' + flood_start + '_' + flood_end,
-      //   scale: 10,
-      //   region: geometry,
-      //   format: 'ZIPPED_GEO_TIFF',
-      // });
-
       var downloadUrlFloodVector = flood_vector.getDownloadURL({
         filename: 'VectorFloodAffectedArea_' + flood_start + '_' + flood_end,
         format: 'GeoJSON',
@@ -998,19 +971,6 @@
       var urlLabel = ui.Label('Click to Download Data', {
         fontWeight: 'bold',
       });
-      // var downloadLink = ui.Label({
-      //   value:
-      //     "• Download Flood-Affected Area Data [GeoTIFF]" +
-      //     " " +
-      //     "(" +
-      //     flood_start +
-      //     ")" +
-      //     "-" +
-      //     "(" +
-      //     flood_end +
-      //     ")",
-      //   targetUrl: downloadUrlFlood,
-      // });
       var downloadLinkVector = ui.Label({
         value:
           "• Download Flood-Affected Area Data [GeoJSON]" +
@@ -1041,7 +1001,6 @@
       //add download link to the panel
       urlPanel.clear();
       urlPanel.add(urlLabel);
-      // urlPanel.add(downloadLink);
       urlPanel.add(downloadLinkVector);
       urlPanel.add(downloadLinkVectorSHP);
       leftMap.add(urlPanel);
