@@ -17,7 +17,8 @@
         fontWeight: "bold",
         fontFamily: "Arial, sans-serif",
         fontSize: "2.4rem",
-        textAlign: "center"
+        textAlign: "center",
+        color: "#0047AB"
       });
       
     var subTitleLabel = ui.Label(
@@ -132,40 +133,35 @@
         margin: "15px 0 0 15px",
       }),
       ui.Label(
-        "[Klik Disini] Video Tutorial Penggunaan WebGIS AeroSkySense",
-        { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" },
-        "https://music.youtube.com/watch?v=TN5Ye9pQhlM&list=RDAOASm6zw3fwwNHHUAmqi82kg"
-      ),
-      ui.Label(
-        "1. Untuk mengetahui kondisi kualitas udara menggunakan WebGIS ini terdapat beberapa parameter yang harus diisi, seperti Rentang Waktu, Jenis Gas Polutan dan Wilayah Kajian.",
+        "1.	The main methods in this application are Change Detection and Thresholding.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "2. Pada parameter Rentang Waktu, dapat diisi dengan memilih waktu awal perekaman dan akhir perekaman melalui DateSlider pada bagian 'Pilih Rentang Waktu Perekaman'.",
+        "2.	The data used are Sentinel-1A Imagery data, consisting of Pre-Flood imagery and Flood Imagery",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "3. Pada parameter Jenis Gas Polutan, dapat diisi dengan memilih jenis gas polutan yang terdiri dari Karbon Monoksida, Nitrogen Dioksida, Sulfur Dioksida dan Ozon pada bagian 'Pilih Jenis Gas Polutan'.",
+        "3.	Change Detection analysis is performed by calculating the Normalized Difference Flood Index (NDFI) from the average backscatter values of the pre-flood imagery and the minimum backscatter values of the flood imagery.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "4. Pada parameter Wilayah Kajian, dapat diisi dengan menambahkan geometri yang disesuaikan dengan halaman yang dipilih (Region of Interest, Aset, Batas Administrasi) pada bagian 'Kelola Area Wilayah Kajian'.",
+        "4.	The NDFI calculation results are then subjected to Thresholding to extract flood area pixels",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "5. Lakukan Analisis Konsentrasi Gas Polutan dengan Klik Tombol 'Submit dan Analisis Konsentrasi Polutan' pada bagian 'Analisis dan Visualisasi Konsentrasi Gas Polutan'. Jika ingin mengunduh datanya dapat dilakukan dengan Klik tombol 'Unduh Data Konsentrasi Polutan'",
+        "5.	The Thresholding value is obtained by subtracting the average of NDFI value from the product of optimah coefficient (1.5) and the standard deviation of NDFI value",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "6. Lakukan Analisis Kualitas Udara berbasis ISPU dengan Klik Tombol 'Submit dan Analisis Kualitas Udara' pada bagian 'Analisis dan Visualisasi Kualitas Udara'. Jika ingin mengunduh datanya dapat dilakukan dengan Klik tombol 'Unduh Data Kualitas Udara'",
+        "6.	The flood area consists of NDFI pixels with values smaller than the Thresholding value.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "6. Lakukan Analisis Kualitas Udara berbasis ISPU dengan Klik Tombol 'Submit dan Analisis Kualitas Udara' pada bagian 'Analisis dan Visualisasi Kualitas Udara'. Jika ingin mengunduh datanya dapat dilakukan dengan Klik tombol 'Unduh Data Kualitas Udara'",
+        "7.	The next process is masking to remove permanent water bodies and areas with a slope greater than 5 degrees. This masking process uses data from the JRC Global Surface Water Mapping Layers v1.4 and ALOS DSM: Global 30m v3.2 data.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
       ui.Label(
-        "7. Lakukan pengamatan dan analisis terhadap kondisi Konsentrasi Gas Polutan dan Kualitas Udara menggunakan fitur-fitur yang ada seperti ekstraksi nilai-nilai rata konsentrasi gas polutan melalui grafik yang akan muncul ketika melakukan analisis",
+        "8.	The final result of the flood area mapping will be displayed and can be downloaded in GeoJSON and Shapefile formats. The total flood area will also be displayed in the bottom right corner of the map.",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" }
       ),
     ]);
