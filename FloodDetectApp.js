@@ -250,9 +250,11 @@
     // Split Panel UI Component
     var leftMap = ui.Map();
     leftMap.setControlVisibility(true);
+    leftMap.drawingTools().set("shown", true);
 
     var rightMap = ui.Map();
     rightMap.setControlVisibility(true);
+    rightMap.drawingTools().set("shown", true);
 
     var splitPanel = ui.SplitPanel({
       firstPanel: leftMap,
@@ -601,10 +603,14 @@
       onClick: function() {
         ui.root.remove(analysisPanel);
         uiMap.clear();
+        leftMap.clear();
+        rightMap.clear();
+        ui.root.remove(splitPanel);
         uiMap.setOptions("HYBRID");
         drawingTools.setShown(false);
         uiMap.setCenter(118.015776, -2.6000285, 5);
         ui.root.insert(0, mainPanel);
+        ui.root.insert(1, uiMap);
       },
       style: { stretch: "horizontal", color: "black" },
     });
@@ -685,8 +691,6 @@
 
         var after_start = floodStartDateObj.format('YYYY-MM-dd');
         var after_end = floodEndDateObj.format('YYYY-MM-dd');
-        
-
       }
     }
 
@@ -697,6 +701,7 @@
         geometry = geom;
         // clipImagery(); 
       }
+      var feature = ee.Feature(geom, {})
       
       //call set parameter Functio
       setParams();
@@ -829,6 +834,8 @@
       var flood_vector_drawn = ee.Image(0).updateMask(0).paint(flood_vector, '000000', 1);
       leftMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flooded Area (polygon)',0);
       rightMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flooded Area (polygon)',0);
+      rightMap.addLayer(geometry, {palette: '#ffffff'}, 'Area of Interest',0);
+      leftMap.addLayer(geometry, {palette: '#ffffff'}, 'Area of Interest',0);
 
       //call legend function
       legendFlood();
