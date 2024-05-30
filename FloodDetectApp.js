@@ -14,14 +14,6 @@
     mapSetUp();
 
     // Title UI Component
-    var appsTitleLabel = ui.Label("FLOODetect", {
-        fontWeight: "bold",
-        fontFamily: "Arial, sans-serif",
-        fontSize: "2.4rem",
-        textAlign: "center",
-        color: "#0047AB"
-      });
-      
     var subTitleLabel = ui.Label(
         "Flood-Affected Areas Mapping Using Sentinel-1A Imagery and Cloud Computing Technology", {
           fontWeight: "bold",
@@ -223,7 +215,6 @@
     // Set Main Page Interface
     var mainPanel = ui.Panel({
       widgets: [
-        appsTitleLabel,
         subTitleLabel,
         descriptionLabel,
         instructionButton,
@@ -263,14 +254,6 @@
       style: {stretch: 'both'},
     });
     var linker = ui.Map.Linker([leftMap, rightMap]);
-
-
-    var analysisTitleLabel = ui.Label("FLOODetect", {
-        fontWeight: "bold",
-        fontFamily: "Arial, sans-serif",
-        fontSize: "2rem",
-        textAlign: "center"
-    });
 
     var analysisSubTitleLabel = ui.Label(
         "Flood-Affected Areas Mapping Using Sentinel-1A Imagery and Cloud Computing Technology", {
@@ -617,7 +600,6 @@
 
     var analysisPanel = ui.Panel({
       widgets: [
-        analysisTitleLabel,
         analysisSubTitleLabel,
         analysisInstructionButton,
         analysisInstructionPanel,
