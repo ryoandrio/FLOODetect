@@ -57,7 +57,7 @@
       ui.Label(
         "[Click Here] Video Tutorial of FLOODetect Apps",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" },
-        "https://www.youtube.com/"
+        "https://s.id/VideoTutorialFLOODetect"
       ),
       ui.Label(
         "1.	To map the flood-affected area with this app, several parameters are needed, including the pre-flood date range, the flood event date range, and the study area. Click the “Start Data Processing” to navigate to Data Processing page.",
@@ -293,7 +293,7 @@
       ui.Label(
         "[Click Here] Video Tutorial of FLOODetect Apps",
         { fontSize: "12px", margin: "2px 15px 2px 15px", textAlign: "justify" },
-        "https://www.youtube.com/"
+        "https://s.id/VideoTutorialFLOODetect"
       ),
       ui.Label(
         "1.	To map the flood-affected area with this app, several parameters are needed, including the pre-flood date range, the flood event date range, and the study area.",
@@ -484,7 +484,7 @@
 
     floodDateButton.onClick(function() {
       if (floodPanel.style().get("shown")) {
-        floodDateButton.setLabel("Submit Pre-Flood Date Range");
+        floodDateButton.setLabel("Submit Flood Date Range");
         floodPanel.style().set("shown", false);
       } else {
         floodDateButton.setLabel("Close Information");
@@ -685,7 +685,7 @@
       }
       var feature = ee.Feature(geom, {})
       
-      //call set parameter Functio
+      //call set parameter Function
       setParams();
 
       //set date range
@@ -698,7 +698,7 @@
       //declare variables
       var polarization = "VH"
       var pass_direction = "ASCENDING"
-      var k_ndfi = 1
+      var k_ndfi = 1.5
 
       //declare datasets
       var dem = ee.ImageCollection('JAXA/ALOS/AW3D30/V3_2').select('DSM');
@@ -724,8 +724,12 @@
       var max_after = after.max().clip(geometry)
       var mean_after = after.mean().clip(geometry)
 
-      leftMap.addLayer(mean_before, {min: -29.264204107025904, max: -8.938093778644141, palette: []}, "Pre-Flood (Mean) Sentinel-1 Imagery",0);
-      rightMap.addLayer(min_after, {min: -29.29334290990966, max: -11.928313976797138, palette: []}, "Flood (Min) Sentinel-1 Imagery",0);
+      leftMap.addLayer(mean_before, {
+        min: -29.264204107025904, max: -8.938093778644141, palette: []}, 
+        "Pre-Flood (Mean) Sentinel-1 Imagery",0);
+      rightMap.addLayer(min_after, {
+        min: -29.29334290990966, max: -11.928313976797138, palette: []}, 
+        "Flood (Min) Sentinel-1 Imagery",0);
 
 
       // Flood Identification using NDFI
@@ -775,7 +779,8 @@
       maxPixels: 1e13
       });
       
-      var ndfi_th = ee.Number(ndfi_mean.get('VH')).subtract(ee.Number(k_ndfi).multiply(ee.Number(ndfi_std.get('VH'))));
+      var ndfi_th = ee.Number(ndfi_mean.get('VH')).
+                      subtract(ee.Number(k_ndfi).multiply(ee.Number(ndfi_std.get('VH'))));
       print('ndfi_th = ', ndfi_th);
       
       // Apply Thresholding Value on NDFI (lt is lower than)
@@ -793,15 +798,7 @@
       ndfi_flood = ndfi_flooded_masked.updateMask(ndfi_flooded_masked.eq(1));
       ndfi_flood_smooth = ndfi_flood.focalMean(1, 'circle');
       ndfi_flood_smooth = ndfi_flood_smooth.toInt();
-
-      // Visualizing result
-      leftMap.setOptions('HYBRID');
-      rightMap.setOptions('HYBRID');
-      leftMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'Flooded Area', 1);
-      rightMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'Flooded Area', 1);
-      leftMap.centerObject(geometry);
-      rightMap.centerObject(geometry);
-
+      
       // Convert the result to vector format
       flood_vector = ndfi_flood_smooth.reduceToVectors({
         geometry: geometry,
@@ -814,6 +811,14 @@
         bestEffort: true
       });
       var flood_vector_drawn = ee.Image(0).updateMask(0).paint(flood_vector, '000000', 1);
+
+      // Visualizing result
+      leftMap.setOptions('HYBRID');
+      rightMap.setOptions('HYBRID');
+      leftMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'Flooded Area', 1);
+      rightMap.addLayer(ndfi_flood_smooth, {palette: 'blue'}, 'Flooded Area', 1);
+      leftMap.centerObject(geometry);
+      rightMap.centerObject(geometry);
       leftMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flooded Area (polygon)',0);
       rightMap.addLayer(flood_vector_drawn, {palette: '000000'}, 'Flooded Area (polygon)',0);
       rightMap.addLayer(geometry, {palette: '#ffffff'}, 'Area of Interest',0);
