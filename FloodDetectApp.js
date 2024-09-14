@@ -698,7 +698,7 @@
       //declare variables
       var polarization = "VH"
       var pass_direction = "ASCENDING"
-      var k_ndfi = 1.5
+      var k_ndfi = 1
 
       //declare datasets
       var dem = ee.ImageCollection('JAXA/ALOS/AW3D30/V3_2').select('DSM');
@@ -967,28 +967,14 @@
       });
       var downloadLinkVector = ui.Label({
         value:
-          "• Download Flood-Affected Area Data [GeoJSON]" +
-          " " +
-          "(" +
-          flood_start +
-          ")" +
-          "-" +
-          "(" +
-          flood_end +
-          ")",
+          "• Download Flood-Affected Area Data [GeoJSON]" + " " + 
+          "(" + flood_start + ")" + "-" + "(" + flood_end + ")",
         targetUrl: downloadUrlFloodVector,
       });
       var downloadLinkVectorSHP = ui.Label({
         value:
-          "• Download Flood-Affected Area Data [Shapefile]" +
-          " " +
-          "(" +
-          flood_start +
-          ")" +
-          "-" +
-          "(" +
-          flood_end +
-          ")",
+          "• Download Flood-Affected Area Data [Shapefile]" + " " + 
+          "(" + flood_start + ")" + "-" + "(" + flood_end + ")",
         targetUrl: downloadUrlFloodVectorSHP,
       });
 
