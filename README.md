@@ -48,5 +48,5 @@ User Guide:
 ## Credits
 - Developed by Ryo Dwi Permana Andrio under supervision of Dr. Nur Mohammad Farda, S.Si., M.Cs.
 - This Apps was developed as a part of my Applied Bachelor of GIS Thesis at Universitas Gadjah Mada
-- You can contact me at email ryodwi2020@ugm.ac.id or via my [LinkedIn](https://www.linkedin.com/in/ryo-dwi-permana-a-229aa9137 'LinkedIn')
+- You can contact me at email ryodwi2020@mail.ugm.ac.id or via my [LinkedIn](https://www.linkedin.com/in/ryo-dwi-permana-a-229aa9137 'LinkedIn')
     
